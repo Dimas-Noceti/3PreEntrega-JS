@@ -20,7 +20,7 @@ const mostrarProductos = () => {
                 <h4 class="card-title">${producto.nombre}</h4>
                 <h5 class="card-title">$${producto.precio}</h5>
                 <p class="card-text">${producto.descripcion}</p>
-                <a href="#" class="btn btn-primary agregarAlCarritoBoton" id="${producto.id}">Agregar al carrito</a>
+                <a class="btn btn-primary agregarAlCarritoBoton" id="${producto.id}">Agregar al carrito</a>
             </div>
         `
         divCards.appendChild(div);
@@ -34,7 +34,7 @@ const carritoContador = document.querySelector(".carritoContador");
 const containerProductos = document.querySelector(".divCardsRow");
 const carritoLogo = document.querySelector(".carrito");
 const divCarrito = document.querySelector(".divCarrito");
-
+let carritoAlmacenado = []
 
 
 let carrito = [];
@@ -94,16 +94,10 @@ function agregarAlCarrito(e) {
 
     localStorage.setItem("carritoGuardado", JSON.stringify(carrito));
     cargarCarrito();
-
 }
 
-
-
-
-
-
 function cargarCarrito() {
-    const carritoAlmacenado = JSON.parse(localStorage.getItem("carritoGuardado"));
+    carritoAlmacenado = JSON.parse(localStorage.getItem("carritoGuardado"));
     if(carritoAlmacenado.length > 0) {
         divCarrito.innerHTML = "";
 
@@ -112,23 +106,26 @@ function cargarCarrito() {
             let precioTotal = producto.precio * producto.cantidad;
             divProductos.className = "divProductos d-flex";
             divProductos.innerHTML = `
-        <div class="divProductos d-flex">
-            <img src="${producto.img}" width="20%">
-            <div>
+        <div class="divProductos d-flex displayBlock">
+            <img src="${producto.img}" width="20%" class="displayBlock">
+            <div class="displayBlock">
                 <p class="fs-4">${producto.nombre}</p>
                 <p class="fs-6">$ ${precioTotal}</p>
             </div>
-            <div  class="divInternoProductos">
-                <button class="botones"><span class="masYMenos">+</span></button>
-                <p><span>Cantidad </span> <span class="contadorDeProductos">${producto.cantidad}</span></p>
-                <button class="botones"><span class="masYMenos">-</span></button>
+            <div  class="divInternoProductos displayBlock">
+                <button class="botones displayBlock"><span class="masYMenos displayBlock">+</span></button>
+                <p class="displayBlock"><span>Cantidad </span> <span class="contadorDeProductos displayBlock">${producto.cantidad}</span></p>
+                <button class="botones displayBlock"><span class="masYMenos displayBlock">-</span></button>
             </div>
-            <button class="botonEliminar">Eliminar</button>
+            <button class="botonEliminar displayBlock" id="${producto.id}">Eliminar</button>
         </div>
         `
+
             divCarrito.appendChild(divProductos);
         })
+        
     }
+
     else {
         divCarrito.innerHTML = "";
         const nadaPorAqui = document.createElement("h2");
@@ -139,12 +136,8 @@ function cargarCarrito() {
 
 
 
-
-
-
-
 document.addEventListener("click", (e) => {
-    if (e.target.classList.contains("carrito") || e.target.classList.contains("divCarrito")) {
+    if (e.target.classList.contains("carrito") || e.target.classList.contains("displayBlock")) {
         divCarrito.style.display = "block";
     }
     else {
@@ -152,7 +145,20 @@ document.addEventListener("click", (e) => {
     }
 })
 
+const eliminarDelCarrito = (productoId) => {
+    let contadorCarritoActualizar = localStorage.getItem("contadorCarrito");
+
+    carritoAlmacenado.forEach((producto, index) => {
+        if (producto.id == productoId) {
+            carritoAlmacenado.splice(index, 1);
+            contadorCarritoActualizar = contadorCarritoActualizar - producto.cantidad;
+        }
+    })
+    localStorage.setItem("carritoGuardado",JSON.stringify(carritoAlmacenado));
+    localStorage.setItem("contadorCarrito", contadorCarritoActualizar);
+    cargarCarrito();
+    actualizarContadorCarrito();
+}
 
 
-
-
+divCarrito.addEventListener("click", (e) => eliminarDelCarrito(e.target.id));
